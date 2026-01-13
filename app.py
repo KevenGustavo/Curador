@@ -4,6 +4,7 @@ from PIL import Image, ImageOps
 import numpy as np
 import time
 import pandas as pd
+import textwrap 
 from dados import INFO_ARTISTAS
 
 # --- 1. CONFIGURAÇÃO INICIAL ---
@@ -53,8 +54,8 @@ st.markdown("""
 
     .museum-card {
         background: linear-gradient(145deg, #1E1E1E, #252525);
-        padding: 25px;
-        border-radius: 2px;
+        padding: 20px; /* Reduzi um pouco para caber melhor no mobile */
+        border-radius: 4px;
         border-top: 3px solid #D4AF37;
         box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         text-align: center;
@@ -68,17 +69,17 @@ st.markdown("""
     
     .artist-name {
         font-family: 'Cinzel', serif;
-        font-size: 32px;
+        font-size: 28px; /* Ajuste para mobile */
         color: #D4AF37;
         margin-bottom: 5px;
         text-shadow: 0px 2px 4px rgba(0,0,0,0.5);
     }
     
     .art-meta {
-        font-size: 14px;
+        font-size: 12px;
         color: #AAA;
         text-transform: uppercase;
-        letter-spacing: 3px;
+        letter-spacing: 2px;
         margin-bottom: 20px;
         border-bottom: 1px solid #444;
         padding-bottom: 15px;
@@ -86,11 +87,11 @@ st.markdown("""
     
     .art-desc {
         font-family: 'Lato', sans-serif;
-        font-size: 16px;
-        line-height: 1.7;
+        font-size: 15px;
+        line-height: 1.6;
         color: #DDD;
         font-weight: 300;
-        text-align: justify;
+        text-align: justify; /* Justificado fica elegante */
     }
     
     div[data-testid="stCameraInput"] {
@@ -127,25 +128,16 @@ with st.spinner("Inicializando redes neurais..."):
 img_file = st.camera_input("Aponte para a obra", label_visibility="collapsed")
 
 if img_file:
-    # Feedback visual
-    progress_text = "Escaneando obra..."
+    # Feedback visual rápido
+    progress_text = "Processando..."
     my_bar = st.progress(0, text=progress_text)
-
-    etapas = [
-        (20, "Normalizando pixels..."),
-        (50, "Extraindo características visuais..."),
-        (80, "Consultando banco de dados de estilos..."),
-        (100, "Finalizando análise.")
-    ]
-    
-    for percent, label in etapas:
-        time.sleep(0.1)
-        my_bar.progress(percent, text=label)
-    
-    time.sleep(0.2)
+    for percent in [20, 50, 80, 100]:
+        time.sleep(0.05)
+        my_bar.progress(percent)
+    time.sleep(0.1)
     my_bar.empty()
 
-    # Processamento e Predição
+    # Processamento
     img_original = Image.open(img_file)
     img_exibicao, img_ia = processar_imagem(img_original)
     
@@ -153,12 +145,10 @@ if img_file:
     indice = np.argmax(prediction)
     confianca = np.max(prediction) * 100
     artista_key = CLASSES[indice]
-    
-    # Busca as informações no arquivo externo
     info = INFO_ARTISTAS.get(artista_key)
 
     # --- EXIBIÇÃO ---
-    col1, col2, col3 = st.columns([1, 4, 1])
+    col1, col2, col3 = st.columns([1, 10, 1]) # Ajustei colunas para a imagem ficar maior no celular
     with col2:
         st.markdown('<div class="art-frame">', unsafe_allow_html=True)
         st.image(img_exibicao, use_column_width=True)
@@ -167,44 +157,44 @@ if img_file:
     st.markdown("<br>", unsafe_allow_html=True)
 
     if confianca > 60:
-        html_card = f"""
-        <div class="museum-card">
-            <div class="artist-name">{info['nome']}</div>
-            <div class="art-meta">{info['movimento']} • {info['ano']}</div>
-            
-            <div class="art-desc">{info['desc']}</div>
-            
-            <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
-            
-            <div style="text-align: left; margin-bottom: 8px;">
-                <span style="color: #D4AF37; font-weight: bold;"> Obra-Prima:</span> 
-                <span style="color: #CCC;">{info['obra_prima']}</span>
+        # CORREÇÃO AQUI: Usando textwrap.dedent para limpar os espaços em branco
+        html_card = textwrap.dedent(f"""
+            <div class="museum-card">
+                <div class="artist-name">{info['nome']}</div>
+                <div class="art-meta">{info['movimento']} • {info['ano']}</div>
+                
+                <div class="art-desc">{info['desc']}</div>
+                
+                <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
+                
+                <div style="text-align: left; margin-bottom: 8px;">
+                    <span style="color: #D4AF37; font-weight: bold;">Obra-Prima:</span> 
+                    <span style="color: #CCC;">{info['obra_prima']}</span>
+                </div>
+                
+                <div style="text-align: left; margin-bottom: 8px;">
+                    <span style="color: #D4AF37; font-weight: bold;">Técnica:</span> 
+                    <span style="color: #CCC;">{info['tecnica']}</span>
+                </div>
+                
+                <div style="background-color: #252525; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 13px; font-style: italic; color: #888; text-align: left;">
+                    <b>Curiosidade:</b> {info['curiosidade']}
+                </div>
             </div>
-            
-            <div style="text-align: left; margin-bottom: 8px;">
-                <span style="color: #D4AF37; font-weight: bold;">🖌️ Técnica:</span> 
-                <span style="color: #CCC;">{info['tecnica']}</span>
-            </div>
-            
-            <div style="background-color: #252525; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 13px; font-style: italic; color: #888;">
-                 <b>Curiosidade:</b> {info['curiosidade']}
-            </div>
-        </div>
-        """
+        """)
         st.markdown(html_card, unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
-        with st.expander("Ver Dados da Rede Neural"):
+        with st.expander("Dados Técnicos"):
             probs = prediction[0] * 100
             df_probs = pd.DataFrame({
                 'Artista': [INFO_ARTISTAS[k]['nome'] for k in CLASSES],
                 'Confiança (%)': probs
             })
             st.bar_chart(df_probs.set_index('Artista'), color="#D4AF37")
-            st.caption("Arquitetura: MobileNetV2 (Transfer Learning)")
             
     else:
-        st.error("Identificação Incerta")
+        st.error("⚠️ Identificação Incerta")
         st.markdown(f"""
         <div style="background-color: #2a1a1a; padding: 20px; border-radius: 5px; border-left: 5px solid #ff4b4b; text-align: center;">
             <h3 style="color: #ff4b4b !important; font-size: 20px;">Análise inconclusiva</h3>
