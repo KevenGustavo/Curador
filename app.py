@@ -4,7 +4,6 @@ from PIL import Image, ImageOps
 import numpy as np
 import time
 import pandas as pd
-import textwrap
 from dados import INFO_ARTISTAS
 
 # --- 1. CONFIGURAÇÃO INICIAL ---
@@ -100,8 +99,9 @@ st.markdown("""
         padding: 10px;
     }
     div[data-testid="stCameraInput"]:hover { border-color: #D4AF37; }
-    
-    /* CORREÇÃO EXTRA: Força elementos vazios a sumirem */
+
+    /* --- CORREÇÃO BARRA CINZA (CSS) --- */
+    /* Garante que elementos vazios colapsem totalmente */
     div[data-testid="stEmpty"] {
         display: none;
     }
@@ -133,17 +133,20 @@ with st.spinner("Inicializando redes neurais..."):
 img_file = st.camera_input("Aponte para a obra", label_visibility="collapsed")
 
 if img_file:
+    # --- CORREÇÃO BARRA CINZA (LÓGICA) ---
+    # Criamos um container temporário
     loading_placeholder = st.empty()
     
     progress_text = "Processando..."
+    # Colocamos a barra dentro desse container específico
     my_bar = loading_placeholder.progress(0, text=progress_text)
     
     for percent in [20, 50, 80, 100]:
         time.sleep(0.05)
         my_bar.progress(percent)
-    
     time.sleep(0.1)
     
+    # Destruímos o container inteiro (remove o espaço cinza)
     loading_placeholder.empty()
 
     # Processamento
@@ -166,30 +169,25 @@ if img_file:
     st.markdown("<br>", unsafe_allow_html=True)
 
     if confianca > 60:
-        html_card = textwrap.dedent(f"""
-            <div class="museum-card">
-                <div class="artist-name">{info['nome']}</div>
-                <div class="art-meta">{info['movimento']} • {info['ano']}</div>
-                
-                <div class="art-desc">{info['desc']}</div>
-                
-                <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
-                
-                <div style="text-align: left; margin-bottom: 8px;">
-                    <span style="color: #D4AF37; font-weight: bold;">🏆 Obra-Prima:</span> 
-                    <span style="color: #CCC;">{info['obra_prima']}</span>
-                </div>
-                
-                <div style="text-align: left; margin-bottom: 8px;">
-                    <span style="color: #D4AF37; font-weight: bold;">🖌️ Técnica:</span> 
-                    <span style="color: #CCC;">{info['tecnica']}</span>
-                </div>
-                
-                <div style="background-color: #252525; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 13px; font-style: italic; color: #888; text-align: left;">
-                    💡 <b>Curiosidade:</b> {info['curiosidade']}
-                </div>
-            </div>
-        """)
+        html_card = f"""
+<div class="museum-card">
+    <div class="artist-name">{info['nome']}</div>
+    <div class="art-meta">{info['movimento']} • {info['ano']}</div>
+    <div class="art-desc">{info['desc']}</div>
+    <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
+    <div style="text-align: left; margin-bottom: 8px;">
+        <span style="color: #D4AF37; font-weight: bold;">🏆 Obra-Prima:</span> 
+        <span style="color: #CCC;">{info['obra_prima']}</span>
+    </div>
+    <div style="text-align: left; margin-bottom: 8px;">
+        <span style="color: #D4AF37; font-weight: bold;">🖌️ Técnica:</span> 
+        <span style="color: #CCC;">{info['tecnica']}</span>
+    </div>
+    <div style="background-color: #252525; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 13px; font-style: italic; color: #888; text-align: left;">
+        💡 <b>Curiosidade:</b> {info['curiosidade']}
+    </div>
+</div>
+"""
         st.markdown(html_card, unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
@@ -202,13 +200,13 @@ if img_file:
             st.bar_chart(df_probs.set_index('Artista'), color="#D4AF37")
             
     else:
-        st.error("Identificação Incerta")
+        st.error("⚠️ Identificação Incerta")
         st.markdown(f"""
-        <div style="background-color: #2a1a1a; padding: 20px; border-radius: 5px; border-left: 5px solid #ff4b4b; text-align: center;">
-            <h3 style="color: #ff4b4b !important; font-size: 20px;">Análise inconclusiva</h3>
-            <p>O algoritmo detectou traços de <b>{info['nome']}</b> ({confianca:.1f}%), 
-            mas não atingiu o limiar de segurança.</p>
-        </div>
-        """, unsafe_allow_html=True)
+<div style="background-color: #2a1a1a; padding: 20px; border-radius: 5px; border-left: 5px solid #ff4b4b; text-align: center;">
+    <h3 style="color: #ff4b4b !important; font-size: 20px;">Análise inconclusiva</h3>
+    <p>O algoritmo detectou traços de <b>{info['nome']}</b> ({confianca:.1f}%), 
+    mas não atingiu o limiar de segurança.</p>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("<br><br>", unsafe_allow_html=True)
