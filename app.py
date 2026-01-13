@@ -127,18 +127,27 @@ def processar_imagem(image):
 st.markdown("<h1>CURADOR.IA</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtitle'>SISTEMA DE VISÃO COMPUTACIONAL</div>", unsafe_allow_html=True)
 
+st.markdown("""
+    <div style="text-align: center; margin-bottom: 20px; font-family: 'Lato', sans-serif;">
+        <p style="color: #DDD; font-size: 15px; margin-bottom: 5px;">
+            Identifique grandes mestres da pintura em tempo real.
+        </p>
+        <p style="color: #666; font-size: 13px; font-style: italic;">
+             Aponte a câmera para a Obra e tire uma foto.
+            <br>(Evite reflexos fortes para maior precisão)
+        </p>
+    </div>
+""", unsafe_allow_html=True)
+
 with st.spinner("Inicializando redes neurais..."):
     model = carregar_modelo()
 
 img_file = st.camera_input("Aponte para a obra", label_visibility="collapsed")
 
 if img_file:
-    # --- CORREÇÃO BARRA CINZA (LÓGICA) ---
-    # Criamos um container temporário
     loading_placeholder = st.empty()
     
     progress_text = "Processando..."
-    # Colocamos a barra dentro desse container específico
     my_bar = loading_placeholder.progress(0, text=progress_text)
     
     for percent in [20, 50, 80, 100]:
@@ -146,7 +155,6 @@ if img_file:
         my_bar.progress(percent)
     time.sleep(0.1)
     
-    # Destruímos o container inteiro (remove o espaço cinza)
     loading_placeholder.empty()
 
     # Processamento
