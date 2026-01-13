@@ -4,7 +4,6 @@ from PIL import Image, ImageOps
 import numpy as np
 import time
 import pandas as pd
-import textwrap
 import base64
 from io import BytesIO
 from dados import INFO_ARTISTAS
@@ -125,6 +124,11 @@ def processar_imagem(image):
     img_array = np.array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
     return img, img_array
+
+def get_image_base64(image):
+    buffered = BytesIO()
+    image.save(buffered, format="JPEG")
+    return base64.b64encode(buffered.getvalue()).decode()
 
 # --- 5. UI PRINCIPAL ---
 st.markdown("<h1>CURADOR.IA</h1>", unsafe_allow_html=True)
