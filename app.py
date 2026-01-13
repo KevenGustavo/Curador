@@ -170,10 +170,13 @@ if img_file:
     # --- EXIBIÇÃO ---
     col1, col2, col3 = st.columns([1, 10, 1])
     with col2:
-        st.markdown('<div class="art-frame">', unsafe_allow_html=True)
-        st.image(img_exibicao, use_column_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
+        img_b64 = get_image_base64(img_exibicao)
+        
+        st.markdown(f"""
+            <div class="art-frame">
+                <img src="data:image/jpeg;base64,{img_b64}">
+            </div>
+        """, unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
 
     if confianca > 60:
