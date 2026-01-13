@@ -2,139 +2,128 @@ import streamlit as st
 import tensorflow as tf
 from PIL import Image, ImageOps
 import numpy as np
+import time
+import pandas as pd 
 
+# --- 1. CONFIGURAÇÃO INICIAL ---
 st.set_page_config(
     page_title="Curador.IA",
-    page_icon="🎨",
+    page_icon="🏛️",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
+# --- 2. ESTILIZAÇÃO (CSS APRIMORADO) ---
 st.markdown("""
     <style>
-    /* Importando fontes elegantes do Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap');
 
-    /* Fundo geral da aplicação (Dark Mode Profundo) */
     .stApp {
-        background-color: #121212;
+        background-color: #0E0E0E; /* Preto quase absoluto */
         color: #E0E0E0;
     }
 
-    /* Títulos (Fonte Cinzel - Estilo Museu) */
-    h1, h2, h3 {
+    /* Tipografia */
+    h1 {
         font-family: 'Cinzel', serif !important;
-        color: #D4AF37 !important; /* Dourado Metálico */
+        color: #D4AF37 !important;
         text-align: center;
         font-weight: 700;
+        letter-spacing: 4px;
+        margin-bottom: 0px;
     }
     
-    /* Texto normal (Fonte Lato - Leitura fácil) */
-    p, div, label {
+    .subtitle {
         font-family: 'Lato', sans-serif;
-        color: #CCCCCC;
+        color: #888;
+        text-align: center;
+        font-size: 14px;
+        letter-spacing: 1px;
+        margin-top: -10px;
+        margin-bottom: 30px;
     }
 
-    /* Esconder menu padrão do Streamlit e rodapé */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    /* Esconde elementos padrão */
+    #MainMenu, footer, header {visibility: hidden;}
 
-    /* Estilo do Card de Resultado */
+    /* MOLDURA DA OBRA (NOVO) */
+    .art-frame {
+        border: 8px solid #333;
+        border-radius: 4px;
+        box-shadow: 0px 10px 30px rgba(0,0,0,0.8);
+        padding: 10px;
+        background-color: #1a1a1a;
+        margin-bottom: 20px;
+    }
+
+    /* CARD DO MUSEU */
     .museum-card {
-        background-color: #1E1E1E;
-        padding: 20px;
-        border-radius: 10px;
-        border: 1px solid #333;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        margin-top: 20px;
+        background: linear-gradient(145deg, #1E1E1E, #252525);
+        padding: 25px;
+        border-radius: 2px;
+        border-top: 3px solid #D4AF37;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         text-align: center;
+        animation: fadeIn 1s;
+    }
+    
+    @keyframes fadeIn {
+        0% {opacity: 0; transform: translateY(20px);}
+        100% {opacity: 1; transform: translateY(0);}
     }
     
     .artist-name {
         font-family: 'Cinzel', serif;
-        font-size: 28px;
+        font-size: 32px;
         color: #D4AF37;
         margin-bottom: 5px;
+        text-shadow: 0px 2px 4px rgba(0,0,0,0.5);
     }
     
-    .art-movement {
-        font-size: 16px;
-        color: #888;
+    .art-meta {
+        font-size: 14px;
+        color: #AAA;
         text-transform: uppercase;
-        letter-spacing: 2px;
+        letter-spacing: 3px;
         margin-bottom: 20px;
         border-bottom: 1px solid #444;
-        padding-bottom: 10px;
+        padding-bottom: 15px;
     }
     
     .art-desc {
+        font-family: 'Lato', sans-serif;
         font-size: 16px;
-        line-height: 1.6;
-        text-align: justify;
+        line-height: 1.7;
         color: #DDD;
-    }
-
-    /* Botões */
-    .stButton>button {
-        width: 100%;
-        background-color: #333333;
-        color: #D4AF37;
-        border: 1px solid #D4AF37;
-        border-radius: 5px;
-    }
-    .stButton>button:hover {
-        background-color: #D4AF37;
-        color: #000;
+        font-weight: 300;
+        text-align: justify;
     }
     
-    /* Box de Confiança */
-    .confidence-box {
-        background-color: #252525;
+    /* Ajuste da câmera para parecer um scanner */
+    div[data-testid="stCameraInput"] {
+        border: 2px dashed #444;
+        border-radius: 10px;
         padding: 10px;
-        border-radius: 5px;
-        font-size: 14px;
-        margin-top: 15px;
-        color: #888;
+    }
+    
+    div[data-testid="stCameraInput"]:hover {
+        border-color: #D4AF37;
     }
     </style>
 """, unsafe_allow_html=True)
 
+# --- 3. DADOS ---
 INFO_ARTISTAS = {
-    'claude_monet': {
-        'nome': 'Claude Monet',
-        'movimento': 'Impressionismo',
-        'desc': 'O mestre da luz e da cor. Monet não pintava objetos, pintava a luz refletida neles. Suas pinceladas rápidas e soltas capturam o momento efêmero da natureza.',
-        'ano': '1840 - 1926'
-    },
-    'leonardo_da_vinci': {
-        'nome': 'Leonardo da Vinci',
-        'movimento': 'Renascimento',
-        'desc': 'O arquétipo do gênio. Usou a técnica "Sfumato" para eliminar contornos bruscos, criando rostos misteriosos e realistas. Uniu ciência e arte como ninguém.',
-        'ano': '1452 - 1519'
-    },
-    'pablo_picasso': {
-        'nome': 'Pablo Picasso',
-        'movimento': 'Cubismo',
-        'desc': 'Picasso quebrou a perspectiva tradicional. Ele mostrava o objeto de frente e de lado ao mesmo tempo, usando formas geométricas para desconstruir a realidade.',
-        'ano': '1881 - 1973'
-    },
-    'salvador_dali': {
-        'nome': 'Salvador Dalí',
-        'movimento': 'Surrealismo',
-        'desc': 'Explorador do inconsciente e dos sonhos. Suas obras são ilógicas, bizarras e perturbadoras, misturando técnica clássica perfeita com alucinações visuais.',
-        'ano': '1904 - 1989'
-    },
-    'vincent_van_gogh': {
-        'nome': 'Vincent van Gogh',
-        'movimento': 'Pós-Impressionismo',
-        'desc': 'Emoção pura na tela. Usava cores vibrantes e pinceladas grossas e espirais para expressar sua turbulência mental e a beleza intensa que via no mundo.',
-        'ano': '1853 - 1890'
-    }
+    'claude_monet': {'nome': 'Claude Monet', 'movimento': 'Impressionismo', 'ano': '1840 - 1926', 'desc': 'O mestre da luz e da cor. Monet não pintava objetos, pintava a luz refletida neles. Suas pinceladas rápidas capturam o momento efêmero.'},
+    'leonardo_da_vinci': {'nome': 'Leonardo da Vinci', 'movimento': 'Renascimento', 'ano': '1452 - 1519', 'desc': 'O arquétipo do gênio. Mestre do "Sfumato" (suavização de contornos). Uniu ciência, anatomia e arte para criar rostos misteriosos e realistas.'},
+    'pablo_picasso': {'nome': 'Pablo Picasso', 'movimento': 'Cubismo', 'ano': '1881 - 1973', 'desc': 'Picasso quebrou a perspectiva tradicional. Ele mostrava o objeto de frente e de lado ao mesmo tempo, usando formas geométricas para desconstruir a realidade.'},
+    'salvador_dali': {'nome': 'Salvador Dalí', 'movimento': 'Surrealismo', 'ano': '1904 - 1989', 'desc': 'Explorador do inconsciente. Suas obras são ilógicas e oníricas, misturando técnica clássica rigorosa com alucinações visuais e objetos derretendo.'},
+    'vincent_van_gogh': {'nome': 'Vincent van Gogh', 'movimento': 'Pós-Impressionismo', 'ano': '1853 - 1890', 'desc': 'Emoção pura na tela. Usava cores vibrantes, contrastes fortes e pinceladas grossas em espiral para expressar sua turbulência mental.'}
 }
 
 CLASSES = ['claude_monet', 'leonardo_da_vinci', 'pablo_picasso', 'salvador_dali', 'vincent_van_gogh']
 
+# --- 4. BACKEND ---
 @st.cache_resource
 def carregar_modelo():
     return tf.keras.models.load_model('modelo_artes_v2.h5')
@@ -146,74 +135,95 @@ def processar_imagem(image):
     img_array = np.expand_dims(img_array, axis=0)
     return img, img_array
 
-
+# --- 5. UI PRINCIPAL ---
 st.markdown("<h1>CURADOR.IA</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #888; margin-top: -15px;'>Reconhecimento de Arte via Inteligência Artificial</p>", unsafe_allow_html=True)
-st.markdown("---")
+st.markdown("<div class='subtitle'>SISTEMA DE VISÃO COMPUTACIONAL</div>", unsafe_allow_html=True)
 
-with st.spinner("Preparando os olhos digitais..."):
+# Carregamento silencioso
+with st.spinner("Inicializando redes neurais..."):
     model = carregar_modelo()
 
-tab_cam, tab_up = st.tabs(["Câmera", "Upload"])
-
-img_file = None
-with tab_cam:
-    st.write("Aponte para a tela ou impressão:")
-    cam_input = st.camera_input("Capturar", label_visibility="collapsed")
-    if cam_input: img_file = cam_input
-
-with tab_up:
-    up_input = st.file_uploader("Escolher arquivo", type=["jpg", "png", "jpeg"])
-    if up_input: img_file = up_input
+# Input Direto (Sem abas)
+img_file = st.camera_input("Aponte para a obra", label_visibility="collapsed")
 
 if img_file:
-    # Processamento
+    # Efeito de "Escaneando" 
+    progress_text = "Escaneando obra..."
+    my_bar = st.progress(0, text=progress_text)
+
+    # Simulação de etapas de processamento
+    etapas = [
+        (20, "Normalizando pixels..."),
+        (50, "Extraindo características visuais..."),
+        (80, "Consultando banco de dados de estilos..."),
+        (100, "Finalizando análise.")
+    ]
+    
+    for percent, label in etapas:
+        time.sleep(0.15) 
+        my_bar.progress(percent, text=label)
+    
+    time.sleep(0.2)
+    my_bar.empty() 
+
+    # Processamento Real
     img_original = Image.open(img_file)
     img_exibicao, img_ia = processar_imagem(img_original)
     
-    # Predição
     prediction = model.predict(img_ia)
     indice = np.argmax(prediction)
     confianca = np.max(prediction) * 100
-    artista = CLASSES[indice]
-    info = INFO_ARTISTAS.get(artista)
+    artista_key = CLASSES[indice]
+    info = INFO_ARTISTAS.get(artista_key)
 
-    # Layout de Resultado
-    st.markdown("<br>", unsafe_allow_html=True)
+    # --- RESULTADOS ---
     
-    # 1. Imagem Centralizada
-    col1, col2, col3 = st.columns([1, 6, 1])
+    # 1. Imagem com Moldura
+    col1, col2, col3 = st.columns([1, 4, 1])
     with col2:
-        st.image(img_exibicao, caption="Obra Analisada", use_column_width=True)
+        st.markdown('<div class="art-frame">', unsafe_allow_html=True)
+        st.image(img_exibicao, use_column_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # 2. Card de Informação (HTML Puro para controle total do design)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # 2. Card Principal
     if confianca > 60:
         html_card = f"""
         <div class="museum-card">
             <div class="artist-name">{info['nome']}</div>
-            <div class="art-movement">{info['movimento']} • {info['ano']}</div>
+            <div class="art-meta">{info['movimento']} • {info['ano']}</div>
             <div class="art-desc">
                 {info['desc']}
-            </div>
-            <div class="confidence-box">
-                🔍 Nível de Certeza da IA: <b>{confianca:.1f}%</b>
             </div>
         </div>
         """
         st.markdown(html_card, unsafe_allow_html=True)
-        st.balloons() # Efeito de festa se acertar
         
+        # 3. Dados Técnicos
+        st.markdown("<br>", unsafe_allow_html=True)
+        with st.expander("📊 Ver Dados da Rede Neural (Visão Técnica)"):
+            st.write("Distribuição de probabilidade entre as classes:")
+            
+            probs = prediction[0] * 100
+            df_probs = pd.DataFrame({
+                'Artista': [INFO_ARTISTAS[k]['nome'] for k in CLASSES],
+                'Confiança (%)': probs
+            })
+            
+            st.bar_chart(df_probs.set_index('Artista'), color="#D4AF37")
+            
+            st.caption(f"Tempo de inferência: Instantâneo (MobileNetV2)")
+            
     else:
-        st.error("Identificação Incerta")
+        st.error("⚠️ Identificação Incerta")
         st.markdown(f"""
-        <div style="background-color: #332222; padding: 15px; border-radius: 10px; border: 1px solid #AA4444;">
-            <p style="color: #FF8888; text-align: center;">
-                A IA está confusa. Suspeito que seja <b>{info['nome']}</b> ({confianca:.1f}%), 
-                mas a imagem pode estar com reflexos ou muito distante.
-            </p>
+        <div style="background-color: #2a1a1a; padding: 20px; border-radius: 5px; border-left: 5px solid #ff4b4b; text-align: center;">
+            <h3 style="color: #ff4b4b !important; font-size: 20px;">Análise inconclusiva</h3>
+            <p>O algoritmo detectou traços de <b>{info['nome']}</b> ({confianca:.1f}%), 
+            mas não atingiu o limiar de segurança.</p>
+            <p style="font-size: 12px; color: #888;">Tente ajustar o ângulo ou reduzir o brilho da tela.</p>
         </div>
         """, unsafe_allow_html=True)
 
-# Rodapé discreto
-st.markdown("<br><br><br>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #444; font-size: 12px;'>Desenvolvido com TensorFlow & Streamlit</p>", unsafe_allow_html=True)
+st.markdown("<br><br>", unsafe_allow_html=True)
