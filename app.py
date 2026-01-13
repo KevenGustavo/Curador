@@ -4,6 +4,9 @@ from PIL import Image, ImageOps
 import numpy as np
 import time
 import pandas as pd
+import textwrap
+import base64
+from io import BytesIO
 from dados import INFO_ARTISTAS
 
 # --- 1. CONFIGURAÇÃO INICIAL ---
