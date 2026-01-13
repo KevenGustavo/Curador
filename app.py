@@ -4,7 +4,6 @@ from PIL import Image, ImageOps
 import numpy as np
 import time
 import pandas as pd
-import textwrap 
 from dados import INFO_ARTISTAS
 
 # --- 1. CONFIGURAÇÃO INICIAL ---
@@ -54,7 +53,7 @@ st.markdown("""
 
     .museum-card {
         background: linear-gradient(145deg, #1E1E1E, #252525);
-        padding: 20px; /* Reduzi um pouco para caber melhor no mobile */
+        padding: 20px;
         border-radius: 4px;
         border-top: 3px solid #D4AF37;
         box-shadow: 0 10px 20px rgba(0,0,0,0.5);
@@ -69,7 +68,7 @@ st.markdown("""
     
     .artist-name {
         font-family: 'Cinzel', serif;
-        font-size: 28px; /* Ajuste para mobile */
+        font-size: 28px;
         color: #D4AF37;
         margin-bottom: 5px;
         text-shadow: 0px 2px 4px rgba(0,0,0,0.5);
@@ -91,7 +90,7 @@ st.markdown("""
         line-height: 1.6;
         color: #DDD;
         font-weight: 300;
-        text-align: justify; /* Justificado fica elegante */
+        text-align: justify;
     }
     
     div[data-testid="stCameraInput"] {
@@ -128,7 +127,7 @@ with st.spinner("Inicializando redes neurais..."):
 img_file = st.camera_input("Aponte para a obra", label_visibility="collapsed")
 
 if img_file:
-    # Feedback visual rápido
+    # Feedback visual
     progress_text = "Processando..."
     my_bar = st.progress(0, text=progress_text)
     for percent in [20, 50, 80, 100]:
@@ -148,7 +147,7 @@ if img_file:
     info = INFO_ARTISTAS.get(artista_key)
 
     # --- EXIBIÇÃO ---
-    col1, col2, col3 = st.columns([1, 10, 1]) # Ajustei colunas para a imagem ficar maior no celular
+    col1, col2, col3 = st.columns([1, 10, 1])
     with col2:
         st.markdown('<div class="art-frame">', unsafe_allow_html=True)
         st.image(img_exibicao, use_column_width=True)
@@ -157,35 +156,32 @@ if img_file:
     st.markdown("<br>", unsafe_allow_html=True)
 
     if confianca > 60:
-        # CORREÇÃO AQUI: Usando textwrap.dedent para limpar os espaços em branco
-        html_card = textwrap.dedent(f"""
-            <div class="museum-card">
-                <div class="artist-name">{info['nome']}</div>
-                <div class="art-meta">{info['movimento']} • {info['ano']}</div>
-                
-                <div class="art-desc">{info['desc']}</div>
-                
-                <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
-                
-                <div style="text-align: left; margin-bottom: 8px;">
-                    <span style="color: #D4AF37; font-weight: bold;">Obra-Prima:</span> 
-                    <span style="color: #CCC;">{info['obra_prima']}</span>
-                </div>
-                
-                <div style="text-align: left; margin-bottom: 8px;">
-                    <span style="color: #D4AF37; font-weight: bold;">Técnica:</span> 
-                    <span style="color: #CCC;">{info['tecnica']}</span>
-                </div>
-                
-                <div style="background-color: #252525; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 13px; font-style: italic; color: #888; text-align: left;">
-                    <b>Curiosidade:</b> {info['curiosidade']}
-                </div>
-            </div>
-        """)
+        # --- CORREÇÃO DEFINITIVA ---
+        # Note que o HTML abaixo está encostado na margem esquerda (sem espaços no início)
+        # Isso garante que o Streamlit não confunda com código.
+        html_card = f"""
+<div class="museum-card">
+    <div class="artist-name">{info['nome']}</div>
+    <div class="art-meta">{info['movimento']} • {info['ano']}</div>
+    <div class="art-desc">{info['desc']}</div>
+    <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
+    <div style="text-align: left; margin-bottom: 8px;">
+        <span style="color: #D4AF37; font-weight: bold;">🏆 Obra-Prima:</span> 
+        <span style="color: #CCC;">{info['obra_prima']}</span>
+    </div>
+    <div style="text-align: left; margin-bottom: 8px;">
+        <span style="color: #D4AF37; font-weight: bold;">🖌️ Técnica:</span> 
+        <span style="color: #CCC;">{info['tecnica']}</span>
+    </div>
+    <div style="background-color: #252525; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 13px; font-style: italic; color: #888; text-align: left;">
+        💡 <b>Curiosidade:</b> {info['curiosidade']}
+    </div>
+</div>
+"""
         st.markdown(html_card, unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
-        with st.expander("Dados Técnicos"):
+        with st.expander("📊 Dados Técnicos (Probabilidades)"):
             probs = prediction[0] * 100
             df_probs = pd.DataFrame({
                 'Artista': [INFO_ARTISTAS[k]['nome'] for k in CLASSES],
@@ -195,12 +191,13 @@ if img_file:
             
     else:
         st.error("⚠️ Identificação Incerta")
+        # Mesmo aqui, sem indentação no HTML
         st.markdown(f"""
-        <div style="background-color: #2a1a1a; padding: 20px; border-radius: 5px; border-left: 5px solid #ff4b4b; text-align: center;">
-            <h3 style="color: #ff4b4b !important; font-size: 20px;">Análise inconclusiva</h3>
-            <p>O algoritmo detectou traços de <b>{info['nome']}</b> ({confianca:.1f}%), 
-            mas não atingiu o limiar de segurança.</p>
-        </div>
-        """, unsafe_allow_html=True)
+<div style="background-color: #2a1a1a; padding: 20px; border-radius: 5px; border-left: 5px solid #ff4b4b; text-align: center;">
+    <h3 style="color: #ff4b4b !important; font-size: 20px;">Análise inconclusiva</h3>
+    <p>O algoritmo detectou traços de <b>{info['nome']}</b> ({confianca:.1f}%), 
+    mas não atingiu o limiar de segurança.</p>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("<br><br>", unsafe_allow_html=True)
