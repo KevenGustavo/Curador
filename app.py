@@ -3,7 +3,8 @@ import tensorflow as tf
 from PIL import Image, ImageOps
 import numpy as np
 import time
-import pandas as pd 
+import pandas as pd
+from dados import INFO_ARTISTAS
 
 # --- 1. CONFIGURAÇÃO INICIAL ---
 st.set_page_config(
@@ -13,17 +14,13 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- 2. ESTILIZAÇÃO (CSS APRIMORADO) ---
+# --- 2. ESTILIZAÇÃO ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap');
 
-    .stApp {
-        background-color: #0E0E0E; /* Preto quase absoluto */
-        color: #E0E0E0;
-    }
+    .stApp { background-color: #0E0E0E; color: #E0E0E0; }
 
-    /* Tipografia */
     h1 {
         font-family: 'Cinzel', serif !important;
         color: #D4AF37 !important;
@@ -43,10 +40,8 @@ st.markdown("""
         margin-bottom: 30px;
     }
 
-    /* Esconde elementos padrão */
     #MainMenu, footer, header {visibility: hidden;}
 
-    /* MOLDURA DA OBRA (NOVO) */
     .art-frame {
         border: 8px solid #333;
         border-radius: 4px;
@@ -56,7 +51,6 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* CARD DO MUSEU */
     .museum-card {
         background: linear-gradient(145deg, #1E1E1E, #252525);
         padding: 25px;
@@ -99,28 +93,16 @@ st.markdown("""
         text-align: justify;
     }
     
-    /* Ajuste da câmera para parecer um scanner */
     div[data-testid="stCameraInput"] {
         border: 2px dashed #444;
         border-radius: 10px;
         padding: 10px;
     }
-    
-    div[data-testid="stCameraInput"]:hover {
-        border-color: #D4AF37;
-    }
+    div[data-testid="stCameraInput"]:hover { border-color: #D4AF37; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 3. DADOS ---
-INFO_ARTISTAS = {
-    'claude_monet': {'nome': 'Claude Monet', 'movimento': 'Impressionismo', 'ano': '1840 - 1926', 'desc': 'O mestre da luz e da cor. Monet não pintava objetos, pintava a luz refletida neles. Suas pinceladas rápidas capturam o momento efêmero.'},
-    'leonardo_da_vinci': {'nome': 'Leonardo da Vinci', 'movimento': 'Renascimento', 'ano': '1452 - 1519', 'desc': 'O arquétipo do gênio. Mestre do "Sfumato" (suavização de contornos). Uniu ciência, anatomia e arte para criar rostos misteriosos e realistas.'},
-    'pablo_picasso': {'nome': 'Pablo Picasso', 'movimento': 'Cubismo', 'ano': '1881 - 1973', 'desc': 'Picasso quebrou a perspectiva tradicional. Ele mostrava o objeto de frente e de lado ao mesmo tempo, usando formas geométricas para desconstruir a realidade.'},
-    'salvador_dali': {'nome': 'Salvador Dalí', 'movimento': 'Surrealismo', 'ano': '1904 - 1989', 'desc': 'Explorador do inconsciente. Suas obras são ilógicas e oníricas, misturando técnica clássica rigorosa com alucinações visuais e objetos derretendo.'},
-    'vincent_van_gogh': {'nome': 'Vincent van Gogh', 'movimento': 'Pós-Impressionismo', 'ano': '1853 - 1890', 'desc': 'Emoção pura na tela. Usava cores vibrantes, contrastes fortes e pinceladas grossas em espiral para expressar sua turbulência mental.'}
-}
-
+# --- 3. CONSTANTES ---
 CLASSES = ['claude_monet', 'leonardo_da_vinci', 'pablo_picasso', 'salvador_dali', 'vincent_van_gogh']
 
 # --- 4. BACKEND ---
@@ -139,19 +121,16 @@ def processar_imagem(image):
 st.markdown("<h1>CURADOR.IA</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtitle'>SISTEMA DE VISÃO COMPUTACIONAL</div>", unsafe_allow_html=True)
 
-# Carregamento silencioso
 with st.spinner("Inicializando redes neurais..."):
     model = carregar_modelo()
 
-# Input Direto (Sem abas)
 img_file = st.camera_input("Aponte para a obra", label_visibility="collapsed")
 
 if img_file:
-    # Efeito de "Escaneando" 
+    # Feedback visual
     progress_text = "Escaneando obra..."
     my_bar = st.progress(0, text=progress_text)
 
-    # Simulação de etapas de processamento
     etapas = [
         (20, "Normalizando pixels..."),
         (50, "Extraindo características visuais..."),
@@ -160,13 +139,13 @@ if img_file:
     ]
     
     for percent, label in etapas:
-        time.sleep(0.15) 
+        time.sleep(0.1)
         my_bar.progress(percent, text=label)
     
     time.sleep(0.2)
-    my_bar.empty() 
+    my_bar.empty()
 
-    # Processamento Real
+    # Processamento e Predição
     img_original = Image.open(img_file)
     img_exibicao, img_ia = processar_imagem(img_original)
     
@@ -174,11 +153,11 @@ if img_file:
     indice = np.argmax(prediction)
     confianca = np.max(prediction) * 100
     artista_key = CLASSES[indice]
+    
+    # Busca as informações no arquivo externo
     info = INFO_ARTISTAS.get(artista_key)
 
-    # --- RESULTADOS ---
-    
-    # 1. Imagem com Moldura
+    # --- EXIBIÇÃO ---
     col1, col2, col3 = st.columns([1, 4, 1])
     with col2:
         st.markdown('<div class="art-frame">', unsafe_allow_html=True)
@@ -187,42 +166,50 @@ if img_file:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # 2. Card Principal
     if confianca > 60:
         html_card = f"""
         <div class="museum-card">
             <div class="artist-name">{info['nome']}</div>
             <div class="art-meta">{info['movimento']} • {info['ano']}</div>
-            <div class="art-desc">
-                {info['desc']}
+            
+            <div class="art-desc">{info['desc']}</div>
+            
+            <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
+            
+            <div style="text-align: left; margin-bottom: 8px;">
+                <span style="color: #D4AF37; font-weight: bold;"> Obra-Prima:</span> 
+                <span style="color: #CCC;">{info['obra_prima']}</span>
+            </div>
+            
+            <div style="text-align: left; margin-bottom: 8px;">
+                <span style="color: #D4AF37; font-weight: bold;">🖌️ Técnica:</span> 
+                <span style="color: #CCC;">{info['tecnica']}</span>
+            </div>
+            
+            <div style="background-color: #252525; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 13px; font-style: italic; color: #888;">
+                 <b>Curiosidade:</b> {info['curiosidade']}
             </div>
         </div>
         """
         st.markdown(html_card, unsafe_allow_html=True)
         
-        # 3. Dados Técnicos
         st.markdown("<br>", unsafe_allow_html=True)
-        with st.expander("📊 Ver Dados da Rede Neural (Visão Técnica)"):
-            st.write("Distribuição de probabilidade entre as classes:")
-            
+        with st.expander("Ver Dados da Rede Neural"):
             probs = prediction[0] * 100
             df_probs = pd.DataFrame({
                 'Artista': [INFO_ARTISTAS[k]['nome'] for k in CLASSES],
                 'Confiança (%)': probs
             })
-            
             st.bar_chart(df_probs.set_index('Artista'), color="#D4AF37")
-            
-            st.caption(f"Tempo de inferência: Instantâneo (MobileNetV2)")
+            st.caption("Arquitetura: MobileNetV2 (Transfer Learning)")
             
     else:
-        st.error("⚠️ Identificação Incerta")
+        st.error("Identificação Incerta")
         st.markdown(f"""
         <div style="background-color: #2a1a1a; padding: 20px; border-radius: 5px; border-left: 5px solid #ff4b4b; text-align: center;">
             <h3 style="color: #ff4b4b !important; font-size: 20px;">Análise inconclusiva</h3>
             <p>O algoritmo detectou traços de <b>{info['nome']}</b> ({confianca:.1f}%), 
             mas não atingiu o limiar de segurança.</p>
-            <p style="font-size: 12px; color: #888;">Tente ajustar o ângulo ou reduzir o brilho da tela.</p>
         </div>
         """, unsafe_allow_html=True)
 
