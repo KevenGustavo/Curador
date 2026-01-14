@@ -1,5 +1,7 @@
 # **🏛️ Curador.IA \- Reconhecimento de Arte**
 
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg) ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg) ![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-red.svg) ![License](https://img.shields.io/badge/License-MIT-green.svg)
+
 **Sistema de Visão Computacional capaz de identificar artistas e movimentos artísticos a partir de fotografias de obras (telas ou impressões), utilizando Deep Learning e técnicas robustas de pré-processamento.**
 
 ## **Sobre o Projeto**
@@ -23,44 +25,53 @@ O repositório está organizado para separar a lógica da aplicação, o treinam
 ```text
 curador-ia/  
 ├── app/                   
-│   ├── app.py             \# Código frontend e backend
-│   ├── dados.py           \# Base de Informações sobre os Artistas  
-│   └── modelo\_artes\_v2.h5 \# Modelo de Deep Learning treinado  
+│   ├── app.py                  # Código frontend e backend
+│   ├── dados.py                # Base de Informações sobre os Artistas  
+│   └── modelo\_artes\_v2.h5    # Modelo de Deep Learning treinado  
 │  
 ├── training/              
-│   ├── preparar\_dados.py  \# Script de limpeza e organização do dataset  
-│   └── Colab_Treino_Modelo.ipynb     \# Jupyter Notebook (Treino do Modelo)  
+│   ├── preparar\_dados.py         # Script de limpeza e organização do dataset  
+│   └── Colab_Treino_Modelo.ipynb  # Jupyter Notebook (Treino do Modelo)  
 │  
 ├── samples/               
-│   └── print\_app.png      \# Imagens para demonstração  
+│   └── print\_app.png   # Imagens para demonstração  
 │  
-├── requirements.txt       \# Dependências do projeto  
-└── README.md              \# Documentação
+├── requirements.txt     # Dependências do projeto  
+└── README.md            # Documentação
 
 ```
 
-## **Tecnologias e Pipeline**
+## **Fluxo de Desenvolvimento**
 
-O sistema opera em um fluxo rigoroso de processamento:
+O projeto seguiu um pipeline de desenvolvimento estruturado em quatro etapas, focando na integridade dos dados e na robustez do modelo para inferência em tempo real.
 
-#### **1\. Pré-processamento (PDI)**
+### 1. Preparação do Dataset
+* **Fonte:** [Best Artworks of All Time (Kaggle)](https://www.kaggle.com/datasets/ikarus777/best-artworks-of-all-time).
+* **Curadoria:** Execução do script `training/preparar_dados.py` para filtrar o dataset original (50 classes) para os 5 artistas alvo.
+* **Balanceamento:** Aplicação de *down-sampling* para equalizar as classes em ~400 imagens cada, prevenindo viés (bias) nas predições.
+* **Particionamento:** Divisão estratificada automática em conjuntos de Treino (80%) e Validação (20%).
 
-* **Correção de Orientação (EXIF):** Utiliza Pillow para garantir que fotos de celular (verticais) sejam rotacionadas corretamente antes da análise.  
-* **Smart Crop (Lanczos):** Realiza um corte central inteligente e redimensionamento para 224x224px, removendo bordas irrelevantes (molduras de monitor, fundos) sem distorcer a obra.  
-* **Normalização:** Conversão de canais RGB (0-255) para float (0-1).
+### 2. Arquitetura do Modelo
+Utilizamos uma abordagem de **Transfer Learning** para otimizar o desempenho com poucos dados:
+* **Backbone:** `MobileNetV2` (pré-treinado no ImageNet) com pesos congelados para extração de características (feature extraction).
+* **Custom Head:** Adição de camadas `GlobalAveragePooling2D` e `Dense` (Softmax) customizadas para a classificação final das 5 classes.
 
-#### **2\. Inteligência Artificial (Deep Learning)**
+### 3. Estratégia de Treino
+O treinamento foi realizado via Google Colab, com foco na adaptação de domínio (Imagens Digitais $\to$ Fotos de Tela):
+* **Data Augmentation:** Configuração agressiva do `ImageDataGenerator` (rotação, zoom, variação de brilho e cisalhamento) para simular artefatos de captura reais.
+* **Otimização:** Uso do otimizador `Adam` e função de perda Categorical Crossentropy.
 
-* **MobileNetV2 (Transfer Learning):** Arquitetura baseada no ImageNet, otimizada para inferência rápida em CPU.  
-* **Data Augmentation Agressivo:** O modelo foi treinado simulando:  
-  * Variação de brilho (0.5x a 1.5x) para lidar com telas luminosas.  
-  * Rotação e cisalhamento (shear) para lidar com fotos tiradas em ângulo.
+### 4. Pipeline de Inferência
+O fluxo de execução no frontend (`app/app.py`) aplica três conceitos fundamentais de Processamento de Imagens depois da captura da imagem e antes da visualização dos resultados:
 
-#### **3\. Interface (Frontend)**
-
-* **Streamlit:** Renderização da interface.  
-* **Embedding Base64:** Técnica utilizada para renderizar as imagens processadas dentro de molduras CSS customizadas.  
-* **Pandas:** Visualização gráfica das probabilidades de cada classe.
+1.  **Transformação Geométrica (Correção de Orientação):**
+    * Leitura de metadados EXIF para identificar a orientação da captura.
+    * Aplicação de matriz de rotação (90°, 180°, 270°) para garantir o alinhamento espacial correto da obra.
+2.  **Reamostragem e Interpolação:**
+    * Utilização do algoritmo de **Filtro Lanczos** (`Image.Resampling.LANCZOS`) para o redimensionamento (Resize) e corte (Crop) da imagem para 224x224px.
+    * *Motivação:* O filtro Lanczos preserva melhor as bordas e detalhes de alta frequência (pinceladas) comparado à interpolação bilinear padrão.
+3.  **Transformação de Intensidade:**
+    * Normalização da matriz de pixels, convertendo o espaço de cor RGB de inteiros `[0, 255]` para ponto flutuante `[0.0, 1.0]`, adequando a entrada para a convergência da rede neural.
 
 ## **Instalação e Configuração**
 
@@ -129,6 +140,16 @@ $ streamlit run App/app.py
 O navegador abrirá automaticamente em: **http://localhost:8501/**.
 
 **Nota**: Ao testar no PC, você precisará de uma webcam. Se estiver acessando pelo celular na mesma rede Wi-Fi, o Streamlit fornecerá um "Network URL".
+
+## Referências e Créditos
+As seguintes fontes e documentações foram utilizadas como base para o desenvolvimento deste projeto:
+
+* **Dataset:** [Best Artworks of All Time - Kaggle](https://www.kaggle.com/datasets/ikarus777/best-artworks-of-all-time)
+* **Modelo de Arquitetura:** [MobileNetV2: Inverted Residuals and Linear Bottlenecks](https://arxiv.org/abs/1801.04381)
+* **Documentações:**
+    * [TensorFlow/Keras Documentation](https://www.tensorflow.org/api_docs)
+    * [Streamlit Documentation](https://docs.streamlit.io/)
+    * [Pillow (PIL) Handbook](https://pillow.readthedocs.io/en/stable/)
 
 ## **Autor**
 
