@@ -95,8 +95,6 @@ Para que o projeto funcione, seu ambiente precisa atender aos seguintes requisit
 #### **1\. Clonar o Repositório**
 
 ```text
-Bash
-
 $ git clone https://github.com/KevenGustavo/Curador.git
 $ cd curador-ia
 ```
@@ -105,16 +103,12 @@ $ cd curador-ia
 
 #### Windows  
 ```text
-Bash
-
 $ python \-m venv venv  
 $ .\\venv\\Scripts\\activate
 ```
 
 #### Linux/Mac 
 ```text
-Bash
-
 $ python3 \-m venv venv  
 $ source venv/bin/activate
 ```
@@ -122,8 +116,6 @@ $ source venv/bin/activate
 #### **3\. Instalar Dependências**
 
 ```text
-Bash
-
 $ pip install \-r requirements.txt
 ```
 
@@ -132,8 +124,6 @@ $ pip install \-r requirements.txt
 Como o arquivo principal está dentro da pasta `App`, o comando é:
 
 ```text
-Bash
-
 $ streamlit run App/app.py
 ```
 
