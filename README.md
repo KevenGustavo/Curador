@@ -95,28 +95,28 @@ Para que o projeto funcione, seu ambiente precisa atender aos seguintes requisit
 #### **1\. Clonar o Repositório**
 
 ```text
-$ git clone https://github.com/KevenGustavo/Curador.git
-$ cd curador-ia
+git clone https://github.com/KevenGustavo/Curador.git
+cd curador-ia
 ```
 
 #### **2\. Criar Ambiente Virtual (Recomendado)**
 
 #### Windows  
 ```text
-$ python \-m venv venv  
-$ .\\venv\\Scripts\\activate
+python \-m venv venv
+.\\venv\\Scripts\\activate
 ```
 
 #### Linux/Mac 
 ```text
-$ python3 \-m venv venv  
-$ source venv/bin/activate
+python3 \-m venv venv  
+source venv/bin/activate
 ```
 
 #### **3\. Instalar Dependências**
 
 ```text
-$ pip install \-r requirements.txt
+pip install \-r requirements.txt
 ```
 
 #### **4\. Executar o App**
@@ -124,7 +124,7 @@ $ pip install \-r requirements.txt
 Como o arquivo principal está dentro da pasta `App`, o comando é:
 
 ```text
-$ streamlit run App/app.py
+streamlit run App/app.py
 ```
 
 O navegador abrirá automaticamente em: **http://localhost:8501/**.
