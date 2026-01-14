@@ -141,7 +141,7 @@ st.markdown("""
         </p>
         <p style="color: #666; font-size: 13px; font-style: italic;">
              Aponte a câmera para a Obra e tire uma foto.
-            <br>(Evite reflexos fortes para maior precisão)
+            <br>(Evite reflexos fortes e centralize a obra na foto para maior precisão)
         </p>
     </div>
 """, unsafe_allow_html=True)
@@ -194,7 +194,7 @@ if img_file:
     <div class="art-desc">{info['desc']}</div>
     <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
     <div style="text-align: left; margin-bottom: 8px;">
-        <span style="color: #D4AF37; font-weight: bold;">🏆 Obra-Prima:</span> 
+        <span style="color: #D4AF37; font-weight: bold;">🏆 Obra mais famosa:</span> 
         <span style="color: #CCC;">{info['obra_prima']}</span>
     </div>
     <div style="text-align: left; margin-bottom: 8px;">
@@ -218,7 +218,7 @@ if img_file:
             st.bar_chart(df_probs.set_index('Artista'), color="#D4AF37")
             
     else:
-        st.error("⚠️ Identificação Incerta")
+        st.error("Identificação Incerta")
         st.markdown(f"""
 <div style="background-color: #2a1a1a; padding: 20px; border-radius: 5px; border-left: 5px solid #ff4b4b; text-align: center;">
     <h3 style="color: #ff4b4b !important; font-size: 20px;">Análise inconclusiva</h3>
