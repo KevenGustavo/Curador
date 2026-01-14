@@ -116,7 +116,7 @@ CLASSES = ['claude_monet', 'leonardo_da_vinci', 'pablo_picasso', 'salvador_dali'
 # --- 4. BACKEND ---
 @st.cache_resource
 def carregar_modelo():
-    return tf.keras.models.load_model('modelo_artes_v2.h5')
+    return tf.keras.models.load_model('App/modelo_artes_v2.h5')
 
 def processar_imagem(image):
     img = ImageOps.exif_transpose(image)
