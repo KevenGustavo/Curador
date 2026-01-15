@@ -33,9 +33,6 @@ curador-ia/
 │   ├── preparar\_dados.py         # Script de limpeza e organização do dataset  
 │   └── Colab_Treino_Modelo.ipynb  # Jupyter Notebook (Treino do Modelo)  
 │  
-├── samples/               
-│   └── print\_app.png   # Imagens para demonstração  
-│  
 ├── requirements.txt     # Dependências do projeto  
 └── README.md            # Documentação
 
