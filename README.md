@@ -29,7 +29,7 @@ curador-ia/
 │   ├── dados.py                # Base de Informações sobre os Artistas  
 │   └── modelo\_artes.h5    # Modelo de Deep Learning treinado  
 │
-├── Examples/                      #Imagens de Diversas Obras para testar o APP
+├── Examples/                      #Imagens de diversas obras para testar o APP
 │
 ├── Training/              
 │   ├── preparar\_dados.py         # Script de limpeza e organização do dataset  
