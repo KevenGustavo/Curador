@@ -12,7 +12,7 @@ INFO_ARTISTAS = {
         'nome': 'Pierre-Auguste Renoir',
         'movimento': 'Impressionismo',
         'ano': '1841 - 1919',
-        'desc': 'O pintor da alegria e da luz. Focava na vida social parisiense e na beleza feminina.',
+        'desc': 'O pintor da felicidade. Focava na vida social parisiense e na beleza feminina.',
         'obra_prima': 'O Baile no Moulin de la Galette',
         'tecnica': 'Pinceladas suaves e luz difusa (sem o preto puro).',
         'curiosidade': 'Pintou suas últimas obras com pincéis amarrados às mãos devido à artrite.'
@@ -30,7 +30,7 @@ INFO_ARTISTAS = {
         'nome': 'Salvador Dalí',
         'movimento': 'Surrealismo',
         'ano': '1904 - 1989',
-        'desc': 'Explorou o inconsciente e os sonhos. Suas obras são bizarras, oníricas e fotograficamente reais.',
+        'desc': 'Explorou o inconsciente e os sonhos. Suas obras são bizarras e fotograficamente reais.',
         'obra_prima': 'A Persistência da Memória',
         'tecnica': 'Método Paranoico-Crítico.',
         'curiosidade': 'Costumava dormir segurando uma chave para acordar e pintar seus sonhos.'
