@@ -111,12 +111,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- 3. CONSTANTES ---
-CLASSES = ['claude_monet', 'leonardo_da_vinci', 'pablo_picasso', 'salvador_dali', 'vincent_van_gogh']
+CLASSES = [
+    'Albrecht_Durer', 
+    'Pablo_Picasso', 
+    'Pierre_Auguste_Renoir', 
+    'Salvador_Dali', 
+    'Vincent_van_Gogh'
+]
 
 # --- 4. BACKEND ---
 @st.cache_resource
 def carregar_modelo():
-    return tf.keras.models.load_model('App/modelo_artes_v2.h5')
+    return tf.keras.models.load_model('App/modelo_artes.h5')
 
 def processar_imagem(image):
     img = ImageOps.exif_transpose(image)

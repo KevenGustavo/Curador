@@ -1,47 +1,47 @@
 INFO_ARTISTAS = {
-    'claude_monet': {
-        'nome': 'Claude Monet',
+    'Albrecht_Durer': {
+        'nome': 'Albrecht Dürer',
+        'movimento': 'Renascimento Nórdico',
+        'ano': '1471 - 1528',
+        'desc': 'Mestre da precisão. Famoso por gravuras detalhadas e estudos matemáticos de proporção.',
+        'obra_prima': 'Melancolia I',
+        'tecnica': 'Xilogravura e Buril (linhas finas e alto contraste).',
+        'curiosidade': 'Foi o primeiro artista a assinar suas obras com um logotipo (o famoso monograma AD).'
+    },
+    'Pierre_Auguste_Renoir': {
+        'nome': 'Pierre-Auguste Renoir',
         'movimento': 'Impressionismo',
-        'ano': '1840 - 1926',
-        'desc': 'O pai do Impressionismo. Pintava a mesma paisagem em horários diferentes para estudar a mudança da luz.',
-        'obra_prima': 'Impressão, Nascer do Sol',
-        'tecnica': 'Pinceladas curtas e fragmentadas ("Plein Air")',
-        'curiosidade': 'No fim da vida, desenvolveu catarata, o que fez suas pinturas ficarem mais avermelhadas e abstratas.'
+        'ano': '1841 - 1919',
+        'desc': 'O pintor da alegria e da luz. Focava na vida social parisiense e na beleza feminina.',
+        'obra_prima': 'O Baile no Moulin de la Galette',
+        'tecnica': 'Pinceladas suaves e luz difusa (sem o preto puro).',
+        'curiosidade': 'Pintou suas últimas obras com pincéis amarrados às mãos devido à artrite.'
     },
-    'leonardo_da_vinci': {
-        'nome': 'Leonardo da Vinci',
-        'movimento': 'Renascimento',
-        'ano': '1452 - 1519',
-        'desc': 'Polímata: cientista, matemático, engenheiro e pintor. Buscava a perfeição anatômica e geométrica.',
-        'obra_prima': 'Mona Lisa',
-        'tecnica': 'Sfumato (suavização de bordas) e Proporção Áurea',
-        'curiosidade': 'Ele escrevia seus diários de trás para frente (escrita espelhada) para proteger suas ideias.'
-    },
-    'pablo_picasso': {
+    'Pablo_Picasso': {
         'nome': 'Pablo Picasso',
         'movimento': 'Cubismo',
         'ano': '1881 - 1973',
-        'desc': 'Revolucionou a arte ao abandonar a perspectiva única, mostrando múltiplos ângulos do objeto simultaneamente.',
+        'desc': 'Quebrou as regras da perspectiva, mostrando múltiplos ângulos do mesmo objeto ao mesmo tempo.',
         'obra_prima': 'Guernica',
-        'tecnica': 'Decomposição Geométrica e Colagem',
-        'curiosidade': 'Seu nome completo de batismo tinha 23 palavras, incluindo "Maria", "Cipriano" e "Santíssima Trindade".'
+        'tecnica': 'Decomposição geométrica e colagem.',
+        'curiosidade': 'Produziu cerca de 50.000 obras de arte durante sua vida.'
     },
-    'salvador_dali': {
+    'Salvador_Dali': {
         'nome': 'Salvador Dalí',
         'movimento': 'Surrealismo',
         'ano': '1904 - 1989',
-        'desc': 'Mestre do bizarro. Misturava sonhos, ciência e religião em imagens hiper-realistas, mas ilógicas.',
+        'desc': 'Explorou o inconsciente e os sonhos. Suas obras são bizarras, oníricas e fotograficamente reais.',
         'obra_prima': 'A Persistência da Memória',
-        'tecnica': 'Método Paranoico-Crítico',
-        'curiosidade': 'Ele tinha um tamanduá de estimação e certa vez deu uma palestra usando um escafandro de mergulho.'
+        'tecnica': 'Método Paranoico-Crítico.',
+        'curiosidade': 'Costumava dormir segurando uma chave para acordar e pintar seus sonhos.'
     },
-    'vincent_van_gogh': {
+    'Vincent_van_Gogh': {
         'nome': 'Vincent van Gogh',
         'movimento': 'Pós-Impressionismo',
         'ano': '1853 - 1890',
-        'desc': 'Transformou dor em cor. Suas obras vibram com energia emocional, usando contrastes complementares.',
+        'desc': 'Expressão pura de emoção através de cores vibrantes e pinceladas em espiral.',
         'obra_prima': 'A Noite Estrelada',
-        'tecnica': 'Impasto (camadas grossas de tinta)',
-        'curiosidade': 'Vendeu apenas um quadro em vida e pintou cerca de 900 obras em apenas 10 anos.'
+        'tecnica': 'Impasto (camadas grossas de tinta).',
+        'curiosidade': 'Cortou parte da própria orelha após uma discussão com Gauguin.'
     }
 }
