@@ -121,8 +121,7 @@ CLASSES = [
 # --- 4. BACKEND ---
 @st.cache_resource
 def carregar_modelo():
-    # Certifique-se que o nome do arquivo aqui é o mesmo que você baixou
-    return tf.keras.models.load_model('App/modelo_artes_final.h5') 
+    return tf.keras.models.load_model('App/modelo_artes.h5') 
 
 def processar_imagem(image):
     img = ImageOps.exif_transpose(image)
