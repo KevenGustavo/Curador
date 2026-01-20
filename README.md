@@ -12,11 +12,11 @@ Este projeto foi desenvolvido no contexto da disciplina de **Processamento de Im
 
 O modelo (CNN) foi treinado para distinguir os traços visuais de 5 grandes mestres:
 
-1. **Claude Monet** (Impressionismo)  
-2. **Leonardo da Vinci** (Renascimento)  
-3. **Pablo Picasso** (Cubismo)  
-4. **Salvador Dalí** (Surrealismo)  
-5. **Vincent van Gogh** (Pós-Impressionismo)
+1.  **Albrecht Dürer** (Renascimento/Gravura) - *Caracterizado por linhas finas, monocromia e alto contraste.*
+2.  **Pablo Picasso** (Cubismo) - *Formas geométricas e decomposição da perspectiva.*
+3.  **Pierre-Auguste Renoir** (Impressionismo) - *Pinceladas difusas, foco na luz e ausência de preto puro.*
+4.  **Salvador Dalí** (Surrealismo) - *Elementos oníricos com renderização hiper-realista.*
+5.  **Vincent van Gogh** (Pós-Impressionismo) - *Textura grossa (impasto) e padrões em espiral.*
 
 ## **Estrutura do Projeto**
 
@@ -24,12 +24,14 @@ O repositório está organizado para separar a lógica da aplicação, o treinam
 
 ```text
 curador-ia/  
-├── app/                   
+├── App/                   
 │   ├── app.py                  # Código frontend e backend
 │   ├── dados.py                # Base de Informações sobre os Artistas  
-│   └── modelo\_artes\_v2.h5    # Modelo de Deep Learning treinado  
-│  
-├── training/              
+│   └── modelo\_artes.h5    # Modelo de Deep Learning treinado  
+│
+├── Examples/                      #Imagens de Diversas Obras para testar o APP
+│
+├── Training/              
 │   ├── preparar\_dados.py         # Script de limpeza e organização do dataset  
 │   └── Colab_Treino_Modelo.ipynb  # Jupyter Notebook (Treino do Modelo)  
 │  

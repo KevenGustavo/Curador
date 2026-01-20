@@ -126,6 +126,7 @@ def carregar_modelo():
 def processar_imagem(image):
     img = ImageOps.exif_transpose(image)
     img = ImageOps.fit(img, (224, 224), Image.Resampling.LANCZOS)
+    img_array = np.array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
     return img, img_array
 
@@ -135,7 +136,7 @@ def get_image_base64(image):
     return base64.b64encode(buffered.getvalue()).decode()
 
 # --- 5. UI PRINCIPAL ---
-st.markdown("<h1>CURADOR</h1>", unsafe_allow_html=True)
+st.markdown("<h1>CURADOR DE ARTE</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtitle'>SISTEMA DE VISÃO COMPUTACIONAL</div>", unsafe_allow_html=True)
 
 lista_artistas_html = ""
